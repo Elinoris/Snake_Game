@@ -1,0 +1,42 @@
+import javax.swing.*;
+import java.awt.*;
+
+public class Main extends JFrame {
+
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
+
+
+    public Main() {
+        setTitle("משחק סנייק");
+        setSize(850, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//סגירת הרצה התוכנה בלחיצת איקס
+        setLocationRelativeTo(null); // מרכוז החלון
+
+        // CardLayout מאפשר להחליף מסכים בקלות בתוך אותו חלון
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        // יצירת מסך ההוראות והגדרת מה קורה בלחיצה על "התחל"
+        InstructionsPanel instructionsPanel = new InstructionsPanel(e -> startGame());
+
+        // הוספת המסך ל-CardLayout
+        mainPanel.add(instructionsPanel, "Instructions");
+
+        add(mainPanel);
+
+        // הצגת מסך ההוראות תחילה
+        cardLayout.show(mainPanel, "Instructions");
+    }
+
+    private void startGame() {
+        // כאן נעבור למסך המשחק הראשי כשנבנה אותו בשלב הבא
+        JOptionPane.showMessageDialog(this, "המשחק מתחיל עכשיו! (בשילוב מסך המשחק הראשי)");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new Main().setVisible(true);
+        });
+    }
+}
