@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -6,43 +5,50 @@ public class GamePanel extends JPanel {
 
     private Snake snake;
     private Food food;
-    private Thread gameThread;    private int score = 0;
+    private Thread gameThread;
+
+    private int score = 0;
+    private int level = 1;
+    private int gameSpeed = 150;
+
     private boolean gameOver = false;
 
     private final int CELL_SIZE = 25;
     private final int BOARD_WIDTH = 600;
     private final int BOARD_HEIGHT = 600;
+    private final int HEADER_HEIGHT = 50;
 
     public GamePanel() {
-        setBackground(Color.BLACK);
+        setBackground(new Color(18, 18, 18));
+        setPreferredSize(new Dimension(600, 650));
 
         snake = new Snake();
-        food = new Food(300, 200);
+        food = new Food(300, 100);
 
         setupKeyBindings();
 
         gameThread = new Thread(() -> {
-
             while (!gameOver) {
 
-                snake.move();
+                if (!snake.move(BOARD_WIDTH, BOARD_HEIGHT + HEADER_HEIGHT, HEADER_HEIGHT)) {
+                    gameOver = true;
+                }
 
                 if (snake.isEating(food)) {
                     snake.grow();
                     score += 10;
+                    updateLevel();
                     moveFood();
                 }
 
-                if (snake.hitWall(BOARD_WIDTH, BOARD_HEIGHT)
-                        || snake.hitItself()) {
-
+                if (snake.hitItself()) {
                     gameOver = true;
                 }
 
                 repaint();
 
                 try {
-                    Thread.sleep(150);
+                    Thread.sleep(gameSpeed);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -52,10 +58,53 @@ public class GamePanel extends JPanel {
         gameThread.start();
     }
 
-    private void setupKeyBindings() {
+    // =========================
+    // רמות קושי
+    // =========================
 
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("UP"), "up");
+    private void updateLevel() {
+        if (score < 50) {
+            level = 1;
+            gameSpeed = 150;
+        } else if (score < 100) {
+            level = 2;
+            gameSpeed = 125;
+        } else if (score < 200) {
+            level = 3;
+            gameSpeed = 100;
+        } else if (score < 400) {
+            level = 4;
+            gameSpeed = 75;
+        } else {
+            level = 5;
+            gameSpeed = 50;
+        }
+    }
+
+    // =========================
+    // יצירת אוכל חדש
+    // =========================
+
+    private void moveFood() {
+        int x;
+        int y;
+
+        do {
+            x = (int) (Math.random() * (BOARD_WIDTH / CELL_SIZE)) * CELL_SIZE;
+
+            y = (int) (Math.random() * ((BOARD_HEIGHT - HEADER_HEIGHT) / CELL_SIZE)) * CELL_SIZE + HEADER_HEIGHT;
+
+        } while (snake.containsPosition(new Point(x, y)));
+
+        food.setPosition(x, y);
+    }
+
+    // =========================
+    // מקשי המשחק
+    // =========================
+
+    private void setupKeyBindings() {
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), "up");
 
         getActionMap().put("up", new AbstractAction() {
             @Override
@@ -64,8 +113,7 @@ public class GamePanel extends JPanel {
             }
         });
 
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("DOWN"), "down");
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DOWN"), "down");
 
         getActionMap().put("down", new AbstractAction() {
             @Override
@@ -74,8 +122,7 @@ public class GamePanel extends JPanel {
             }
         });
 
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("LEFT"), "left");
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("LEFT"), "left");
 
         getActionMap().put("left", new AbstractAction() {
             @Override
@@ -84,8 +131,7 @@ public class GamePanel extends JPanel {
             }
         });
 
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("RIGHT"), "right");
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"), "right");
 
         getActionMap().put("right", new AbstractAction() {
             @Override
@@ -95,40 +141,90 @@ public class GamePanel extends JPanel {
         });
     }
 
-    private void moveFood() {
-        int x;
-        int y;
-
-        do {
-            x = (int) (Math.random() * (BOARD_WIDTH / CELL_SIZE))
-                    * CELL_SIZE;
-
-            // לא מאפשרים אוכל בשורה העליונה שבה נמצא הניקוד
-            y = ((int) (Math.random() * ((BOARD_HEIGHT / CELL_SIZE) - 2)) + 2)
-                    * CELL_SIZE;
-
-        } while (snake.containsPosition(new Point(x, y)));
-
-        food.setPosition(x, y);
-
-        System.out.println("New food: " + x + ", " + y);
-    }
+    // =========================
+    // ציור המשחק
+    // =========================
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + score, 10, 25);
 
-        snake.draw(g);
-        food.draw(g);
+        Graphics2D g2 = (Graphics2D) g;
 
+        // רקע המשחק
+        g2.setColor(new Color(18, 18, 18));
+        g2.fillRect(0, HEADER_HEIGHT, BOARD_WIDTH, BOARD_HEIGHT);
+
+        // אזור עליון
+        g2.setColor(new Color(30, 30, 30));
+        g2.fillRect(0, 0, BOARD_WIDTH, HEADER_HEIGHT);
+
+        // קו הפרדה
+        g2.setColor(new Color(70, 70, 70));
+        g2.fillRect(0, HEADER_HEIGHT - 1, BOARD_WIDTH, 1);
+
+        // משבצות
+        drawGrid(g2);
+
+        // Score
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 20));
+        g2.drawString("Score: " + score, 20, 32);
+
+        // Level
+        g2.drawString("Level: " + level, 500, 32);
+
+        // נחש
+        snake.draw(g2);
+
+        // אוכל
+        food.draw(g2);
+
+        // Game Over
         if (gameOver) {
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 40));
-            g.drawString("GAME OVER", 180, 300);
+            drawGameOver(g2);
+        }
+    }
+
+    // =========================
+    // ציור משבצות
+    // =========================
+
+    private void drawGrid(Graphics2D g2) {
+        g2.setColor(new Color(25, 25, 25));
+
+        for (int x = 0; x <= BOARD_WIDTH; x += CELL_SIZE) {
+            g2.drawLine(x, HEADER_HEIGHT, x, HEADER_HEIGHT + BOARD_HEIGHT);
         }
 
+        for (int y = HEADER_HEIGHT; y <= HEADER_HEIGHT + BOARD_HEIGHT; y += CELL_SIZE) {
+            g2.drawLine(0, y, BOARD_WIDTH, y);
+        }
+    }
+
+    // =========================
+    // Game Over
+    // =========================
+
+    private void drawGameOver(Graphics2D g2) {
+        g2.setColor(new Color(0, 0, 0, 170));
+        g2.fillRect(0, HEADER_HEIGHT, BOARD_WIDTH, BOARD_HEIGHT);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 50));
+
+        String gameOverText = "GAME OVER";
+        FontMetrics fm = g2.getFontMetrics();
+        int textX = (BOARD_WIDTH - fm.stringWidth(gameOverText)) / 2;
+
+        g2.drawString(gameOverText, textX, 290);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 24));
+
+        String scoreText = "Final Score: " + score;
+        fm = g2.getFontMetrics();
+        int scoreX = (BOARD_WIDTH - fm.stringWidth(scoreText)) / 2;
+
+        g2.drawString(scoreText, scoreX, 335);
     }
 }

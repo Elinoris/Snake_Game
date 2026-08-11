@@ -5,7 +5,7 @@ public class GameFrame extends JFrame {
 
     public GameFrame() {
         setTitle("Snake");
-        setSize(600, 600);
+        setSize(616, 639);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
