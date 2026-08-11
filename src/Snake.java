@@ -52,15 +52,13 @@ public class Snake {
         g2.fillOval(head.x + 16, head.y + 7, 3, 3);
     }
 
-
-
     public boolean move(int width, int height, int topBoundary) {
         Point head = body.get(0);
 
         int nextX = head.x + dx;
         int nextY = head.y + dy;
 
-        if (nextX < 0 || nextX + 25 > width || nextY < topBoundary || nextY + 25 > height) {
+        if (nextX <= 0 || nextX >= width - 25 || nextY <= topBoundary || nextY >= height - 50) {
             return false;
         }
 
@@ -74,7 +72,6 @@ public class Snake {
 
         return true;
     }
-
     public void changeDirection(int dx, int dy) {
 
         if (dx == 25 && direction.equals("LEFT")) {
