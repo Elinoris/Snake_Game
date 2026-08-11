@@ -1,0 +1,21 @@
+﻿# סביבות וירטואליות
+venv/
+env/
+__pycache__/
+
+# קבצי מידע, מודלים כבדים ופלט
+*.pyc
+*.h5
+*.pkl
+*.pt
+data/
+datasets/
+
+# מפתחות גישה וסודות
+.env
+config.json
+
+# קבצי מערכת
+.DS_Store
+.vscode/
+.idea/
