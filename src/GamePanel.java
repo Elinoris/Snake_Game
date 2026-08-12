@@ -47,9 +47,13 @@ public class GamePanel extends JPanel {
         } else if (score < 400) {
             level = 4;
             gameSpeed = 75;
-        } else {
+        } else if (score < 500) {
             level = 5;
             gameSpeed = 50;
+        }
+        else {
+            level = 6;
+            gameSpeed = 10;
         }
     }
 
@@ -112,7 +116,6 @@ public class GamePanel extends JPanel {
         getActionMap().put("restart", new AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                // מפעילים את הריסטארט רק אם המשחק באמת הסתיים!
                 if (gameOver) {
                     resetGame();
                 }
@@ -163,9 +166,7 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // =========================
-    // ציור משבצות
-    // =========================
+
 
     private void drawGrid(Graphics2D g2) {
         g2.setColor(new Color(25, 25, 25));
@@ -231,7 +232,7 @@ public class GamePanel extends JPanel {
         gameThread = new Thread(() -> {
             while (!gameOver) {
 
-                if (!snake.move(BOARD_WIDTH, BOARD_HEIGHT + HEADER_HEIGHT, HEADER_HEIGHT)) {
+                if (!snake.move(BOARD_WIDTH, BOARD_HEIGHT-25, HEADER_HEIGHT)) {
                     gameOver = true;
                 }
 

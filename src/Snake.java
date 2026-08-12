@@ -41,13 +41,13 @@ public class Snake {
         g2.fillRect(head.x, head.y, 25, 25);
 
         // עיניים
-        g2.setColor(Color.WHITE);
+        g2.setColor(Color.YELLOW);
 
         g2.fillOval(head.x + 5, head.y + 5, 6, 6);
         g2.fillOval(head.x + 14, head.y + 5, 6, 6);
 
         // אישונים
-        g2.setColor(Color.BLACK);
+        g2.setColor(Color.GREEN);
 
         g2.fillOval(head.x + 7, head.y + 7, 3, 3);
         g2.fillOval(head.x + 16, head.y + 7, 3, 3);
@@ -59,7 +59,7 @@ public class Snake {
         int nextX = head.x + dx;
         int nextY = head.y + dy;
 
-        if (nextX < 0 || nextX >= width || nextY < topBoundary || nextY >= height ) {
+        if (nextX < 0 || nextX >= width || nextY < topBoundary || nextY > height ) {
             return false;
         }
 
