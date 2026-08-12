@@ -19,7 +19,7 @@ public class GamePanel extends JPanel {
     private final int HEADER_HEIGHT = 50;
 
     public GamePanel() {
-        setBackground(new Color(18, 18, 18));
+        setBackground(new Color(18, 18, 18));//יצירת קוביות לתחושבת התמצות במרחב
         setPreferredSize(new Dimension(600, 650));
 
         snake = new Snake();
@@ -27,35 +27,7 @@ public class GamePanel extends JPanel {
 
         setupKeyBindings();
 
-        gameThread = new Thread(() -> {
-            while (!gameOver) {
-
-                if (!snake.move(BOARD_WIDTH, BOARD_HEIGHT + HEADER_HEIGHT, HEADER_HEIGHT)) {
-                    gameOver = true;
-                }
-
-                if (snake.isEating(food)) {
-                    snake.grow();
-                    score += 10;
-                    updateLevel();
-                    moveFood();
-                }
-
-                if (snake.hitItself()) {
-                    gameOver = true;
-                }
-
-                repaint();
-
-                try {
-                    Thread.sleep(gameSpeed);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-
-        gameThread.start();
+       resetGame();
     }
 
     // =========================
@@ -81,9 +53,7 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // =========================
-    // יצירת אוכל חדש
-    // =========================
+//יציאת אוכל חדש
 
     private void moveFood() {
         int x;
@@ -99,10 +69,7 @@ public class GamePanel extends JPanel {
         food.setPosition(x, y);
     }
 
-    // =========================
-    // מקשי המשחק
-    // =========================
-
+//מקשים
     private void setupKeyBindings() {
         getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), "up");
 
@@ -139,11 +106,21 @@ public class GamePanel extends JPanel {
                 snake.changeDirection(CELL_SIZE, 0);
             }
         });
+        // מקש SPACE לריסטארט
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), "restart");
+
+        getActionMap().put("restart", new AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                // מפעילים את הריסטארט רק אם המשחק באמת הסתיים!
+                if (gameOver) {
+                    resetGame();
+                }
+            }
+        });
     }
 
-    // =========================
-    // ציור המשחק
-    // =========================
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -151,11 +128,11 @@ public class GamePanel extends JPanel {
 
         Graphics2D g2 = (Graphics2D) g;
 
-        // רקע המשחק
+
         g2.setColor(new Color(18, 18, 18));
         g2.fillRect(0, HEADER_HEIGHT, BOARD_WIDTH, BOARD_HEIGHT);
 
-        // אזור עליון
+
         g2.setColor(new Color(30, 30, 30));
         g2.fillRect(0, 0, BOARD_WIDTH, HEADER_HEIGHT);
 
@@ -202,9 +179,7 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // =========================
-    // Game Over
-    // =========================
+
 
     private void drawGameOver(Graphics2D g2) {
         g2.setColor(new Color(0, 0, 0, 170));
@@ -226,5 +201,64 @@ public class GamePanel extends JPanel {
         int scoreX = (BOARD_WIDTH - fm.stringWidth(scoreText)) / 2;
 
         g2.drawString(scoreText, scoreX, 335);
+        // הודעה לשחקן
+        g2.setFont(new Font("Arial", Font.PLAIN, 18));
+        g2.setColor(Color.YELLOW);
+
+        String restartText = "Press SPACE to Restart";
+        fm = g2.getFontMetrics();
+        int restartX = (BOARD_WIDTH - fm.stringWidth(restartText)) / 2;
+
+        g2.drawString(restartText, restartX, 380);
     }
-}
+
+    private void resetGame() {
+
+        score = 0;
+        level = 1;
+        gameSpeed = 150;
+        gameOver = false;
+
+
+        snake = new Snake();
+        moveFood();
+
+
+        startGameThread();
+    }
+
+    private void startGameThread() {
+        gameThread = new Thread(() -> {
+            while (!gameOver) {
+
+                if (!snake.move(BOARD_WIDTH, BOARD_HEIGHT + HEADER_HEIGHT, HEADER_HEIGHT)) {
+                    gameOver = true;
+                }
+
+                if (snake.isEating(food)) {
+                    snake.grow();
+                    score += 10;
+                    updateLevel();
+                    moveFood();
+                }
+
+                if (snake.hitItself()) {
+                    gameOver = true;
+                }
+
+                repaint();
+
+                try {
+                    Thread.sleep(gameSpeed);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+        gameThread.start();
+    }
+
+
+    }
+

@@ -18,6 +18,7 @@ public class Snake {
         body.add(new Point(150, 100));
         body.add(new Point(125, 100));
         body.add(new Point(100, 100));
+
     }
 
 
@@ -25,18 +26,18 @@ public class Snake {
 
         Graphics2D g2 = (Graphics2D) g;
 
-        // גוף הנחש
-        g2.setColor(new Color(71, 127, 255));
+
+        g2.setColor(new Color(0, 127, 0));
 
         for (int i = 1; i < body.size() - 1; i++) {
             Point part = body.get(i);
             g2.fillRect(part.x, part.y, 25, 25);
         }
 
-        // ראש הנחש
+
         Point head = body.get(0);
 
-        g2.setColor(new Color(50, 100, 200));
+        g2.setColor(new Color(0, 100, 0));
         g2.fillRect(head.x, head.y, 25, 25);
 
         // עיניים
@@ -58,7 +59,7 @@ public class Snake {
         int nextX = head.x + dx;
         int nextY = head.y + dy;
 
-        if (nextX <= 0 || nextX >= width - 25 || nextY <= topBoundary || nextY >= height - 50) {
+        if (nextX < 0 || nextX >= width || nextY < topBoundary || nextY >= height ) {
             return false;
         }
 
