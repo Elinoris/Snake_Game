@@ -1,6 +1,6 @@
 import java.awt.*;
 
-public class Food {
+public class Food extends GameObject {
 
     private Point position;
 
@@ -8,8 +8,8 @@ public class Food {
         position = new Point(x, y);
     }
 
-    public void draw(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
+    @Override
+    public void draw(Graphics2D g2) {
 
         // תפוח
         g2.setColor(new Color(220, 50, 50));

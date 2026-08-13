@@ -3,7 +3,7 @@
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Snake {
+public class Snake extends GameObject {
 
     private int dx = 25;
     private int dy = 0;
@@ -22,12 +22,11 @@ public class Snake {
     }
 
 
-    public void draw(Graphics g) {
+    @Override
+    public void draw(Graphics2D g2) {
 
-        Graphics2D g2 = (Graphics2D) g;
 
-
-        g2.setColor(new Color(0, 127, 0));
+        g2.setColor(new Color(0, 20, 100));
 
         for (int i = 1; i < body.size() - 1; i++) {
             Point part = body.get(i);
@@ -37,7 +36,7 @@ public class Snake {
 
         Point head = body.get(0);
 
-        g2.setColor(new Color(0, 100, 0));
+        g2.setColor(new Color(50, 20, 100));
         g2.fillRect(head.x, head.y, 25, 25);
 
         // עיניים

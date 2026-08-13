@@ -7,11 +7,13 @@ public class GamePanel extends JPanel {
     private Food food;
     private Thread gameThread;
 
-    private int score = 0;
-    private int level = 1;
-    private int gameSpeed = 150;
+    // volatile: השדות האלה נכתבים ב-thread המשחק ונקראים מה-EDT (ציור, מקשים),
+    // כך שבלי volatile אין הבטחה שהערך המעודכן יהיה גלוי ל-thread האחר
+    private volatile int score = 0;
+    private volatile int level = 1;
+    private volatile int gameSpeed = 150;
 
-    private boolean gameOver = false;
+    private volatile boolean gameOver = false;
 
     private final int CELL_SIZE = 25;
     private final int BOARD_WIDTH = 600;
@@ -19,7 +21,7 @@ public class GamePanel extends JPanel {
     private final int HEADER_HEIGHT = 50;
 
     public GamePanel() {
-        setBackground(new Color(18, 18, 18));//יצירת קוביות לתחושבת התמצות במרחב
+        setBackground(new Color(24, 90, 48));
         setPreferredSize(new Dimension(600, 650));
 
         snake = new Snake();
@@ -131,20 +133,20 @@ public class GamePanel extends JPanel {
 
         Graphics2D g2 = (Graphics2D) g;
 
+        // לוח משחק - "דשא" מזמין במקום רקע שחור
+        drawGrid(g2);
 
-        g2.setColor(new Color(18, 18, 18));
-        g2.fillRect(0, HEADER_HEIGHT, BOARD_WIDTH, BOARD_HEIGHT);
-
-
-        g2.setColor(new Color(30, 30, 30));
+        // כותרת עליונה
+        GradientPaint headerGradient = new GradientPaint(
+                0, 0, new Color(30, 70, 40),
+                0, HEADER_HEIGHT, new Color(20, 50, 28)
+        );
+        g2.setPaint(headerGradient);
         g2.fillRect(0, 0, BOARD_WIDTH, HEADER_HEIGHT);
 
         // קו הפרדה
-        g2.setColor(new Color(70, 70, 70));
+        g2.setColor(new Color(90, 160, 100));
         g2.fillRect(0, HEADER_HEIGHT - 1, BOARD_WIDTH, 1);
-
-        // משבצות
-        drawGrid(g2);
 
         // Score
         g2.setColor(Color.WHITE);
@@ -154,11 +156,12 @@ public class GamePanel extends JPanel {
         // Level
         g2.drawString("Level: " + level, 500, 32);
 
-        // נחש
-        snake.draw(g2);
-
-        // אוכל
-        food.draw(g2);
+        // ציור פולימורפי: שני סוגי אובייקטים שונים (Snake, Food) יורשים מ-GameObject
+        // ומצוירים דרך אותה קריאה בדיוק - obj.draw(g2) - כל אחד לפי המימוש שלו
+        GameObject[] gameObjects = { snake, food };
+        for (GameObject obj : gameObjects) {
+            obj.draw(g2);
+        }
 
         // Game Over
         if (gameOver) {
@@ -169,14 +172,15 @@ public class GamePanel extends JPanel {
 
 
     private void drawGrid(Graphics2D g2) {
-        g2.setColor(new Color(25, 25, 25));
+        Color lightTile = new Color(72, 176, 92);
+        Color darkTile = new Color(58, 158, 80);
 
-        for (int x = 0; x <= BOARD_WIDTH; x += CELL_SIZE) {
-            g2.drawLine(x, HEADER_HEIGHT, x, HEADER_HEIGHT + BOARD_HEIGHT);
-        }
-
-        for (int y = HEADER_HEIGHT; y <= HEADER_HEIGHT + BOARD_HEIGHT; y += CELL_SIZE) {
-            g2.drawLine(0, y, BOARD_WIDTH, y);
+        for (int y = HEADER_HEIGHT; y < HEADER_HEIGHT + BOARD_HEIGHT; y += CELL_SIZE) {
+            for (int x = 0; x < BOARD_WIDTH; x += CELL_SIZE) {
+                boolean isLight = ((x / CELL_SIZE) + (y / CELL_SIZE)) % 2 == 0;
+                g2.setColor(isLight ? lightTile : darkTile);
+                g2.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+            }
         }
     }
 
