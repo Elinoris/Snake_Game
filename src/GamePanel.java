@@ -172,7 +172,7 @@ public class GamePanel extends JPanel {
 
 
     private void drawGrid(Graphics2D g2) {
-        Color lightTile = new Color(150, 176, 92);
+        Color lightTile = new Color(120, 170, 92);
         Color darkTile = new Color(58, 158, 80);
 
         for (int y = HEADER_HEIGHT; y < HEADER_HEIGHT + BOARD_HEIGHT; y += CELL_SIZE) {

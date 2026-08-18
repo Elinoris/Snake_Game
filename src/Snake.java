@@ -124,7 +124,8 @@ public class Snake extends GameObject {
 
         return false;
     }
-
+    //המתודה  בודקת האם נקודה מסוימת על הלוח מוכלת בתוך גוף הנחש.
+    //היא מבטיחה שאשר מוגרל מיקום חדש לאוכל, המשחק יוודא מראש שהאוכל לא מוגרל בדיוק על גבי אחד מהמקטעים של הנחש.
     public boolean containsPosition(Point position) {
         return body.contains(position);
     }
